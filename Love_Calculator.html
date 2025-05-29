@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Love Calculator </title>
+    <style>
+        /* ====== Basic Reset ====== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            padding: 25px 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px #ff80abaa;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            color: #ff1744;
+            margin-bottom: 20px;
+            font-weight: 900;
+            text-shadow: 1px 1px 3px #ff80ab;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 30px;
+            border: 2px solid #ff4081;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff1744;
+            box-shadow: 0 0 8px #ff1744aa;
+        }
+
+        #calculateBtn {
+            cursor: pointer;
+            background: linear-gradient(45deg, #ff4081, #ff80ab);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(255, 64, 129, 0.6);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+        }
+        #calculateBtn:hover {
+            background: linear-gradient(45deg, #ff80ab, #ff1744);
+            box-shadow: 0 8px 20px rgba(255, 23, 68, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Result box */
+        .result-box {
+            background: #fff0f6;
+            border: 2px solid #ff4081;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 25px;
+            box-shadow: 0 0 20px #ff80ab88;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+        .result-percentage {
+            font-size: 2.8em;
+            font-weight: 900;
+            color: #ff4081;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #ff80abaa;
+        }
+        .message-text {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #d81b60;
+            margin-top: 5px;
+        }
+
+        /* Progress bar */
+        .percent-bar {
+            width: 100%;
+            height: 22px;
+            background: #ffe6f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 15px;
+            box-shadow: 0 0 10px #ff80ab88;
+        }
+        .percent-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0);
+            border-radius: 20px;
+            box-shadow: 0 0 15px #ff0080;
+            transition: width 1.2s ease-in-out;
+        }
+
+        /* Floating Hearts */
+        .floating-heart {
+            position: fixed;
+            bottom: -50px;
+            font-size: 24px;
+            animation-name: floatUp;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: 1;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 150, 0.7));
+            font-weight: 900;
+            z-index: 9999;
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-150vh) scale(1.5);
+                opacity: 0;
+            }
+        }
+        /* Alert box */
+        .alert-box {
+            background: #ff1744;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            animation: alertFade 2.5s ease forwards;
+            font-family: 'Segoe UI Black', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        @keyframes alertFade {
+            0% {opacity: 1;}
+            80% {opacity: 1;}
+            100% {opacity: 0;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Love Calculator ❤️</h1>
+        <div id="alertContainer"></div>
+        <input type="text" id="name1" placeholder="তোমার নাম লিখো..." maxlength="20" autocomplete="off" />
+        <input type="text" id="name2" placeholder=" তোমার ভালোবাসার নাম লিখো..." maxlength="20" autocomplete="off" />
+        <button id="calculateBtn">Calculate ❤️</button>
+
+        <div id="result" class="result-box" style="display:none;">
+            <div class="result-percentage" id="percentage"></div>
+            <div class="percent-bar"><div class="percent-fill" id="percentFill"></div></div>
+            <div class="message-text" id="message"></div>
+        </div>
+    </div>
+
+<script>
+    const btn = document.getElementById('calculateBtn');
+    const resultBox = document.getElementById('result');
+    const percentageEl = document.getElementById('percentage');
+    const messageEl = document.getElementById('message');
+    const percentFill = document.getElementById('percentFill');
+    const alertContainer = document.getElementById('alertContainer');
+
+    // Random colors for hearts
+    const heartColors = ['#ff4081', '#ff80ab', '#ff1744', '#ff5252', '#e040fb', '#f48fb1'];
+
+    function showAlert(text) {
+        alertContainer.innerHTML = `<div class="alert-box">${text}</div>`;
+        setTimeout(() => {
+            alertContainer.innerHTML = '';
+        }, 2500);
+    }
+
+    function createFloatingHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('floating-heart');
+        heart.innerText = '❤️';
+
+        // Random horizontal position
+        heart.style.left = Math.random() * window.innerWidth + 'px';
+
+        // Random animation duration & delay
+        const duration = 4000 + Math.random() * 3000;
+        heart.style.animationDuration = duration + 'ms';
+
+        // Random color
+        heart.style.color = heartColors[Math.floor(Math.random() * heartColors.length)];
+
+        document.body.appendChild(heart);
+
+        // Remove heart after animation ends
+        setTimeout(() => {
+            heart.remove();
+        }, duration);
+    }
+
+    btn.addEventListener('click', () => {
+        const name1 = document.getElementById('name1').value.trim();
+        const name2 = document.getElementById('name2').value.trim();
+
+        // Validations
+        if (name1 === '' || name2 === '') {
+            showAlert('ওহ না! দুই নামই দিতে হবে, তোর প্রেমের ভাগ্য জানাতে!');
+            return;
+        }
+        if (name1.length > 20 || name2.length > 20) {
+            showAlert('নামগুলো একটু ছোট কর, এত বড় নাম দেখে প্রেমিকেও ভয় লাগবে!');
+            return;
+        }
+
+        // Calculate love percentage - simple hashing + mod
+        const combined = name1.toLowerCase() + name2.toLowerCase();
+        let sum = 0;
+        for (let i = 0; i < combined.length; i++) {
+            sum += combined.charCodeAt(i);
+        }
+        let percentage = (sum % 101); // 0 to 100
+
+        // For more fun, add some randomness +/-5%
+        percentage += Math.floor(Math.random() * 11) - 5;
+        if (percentage < 0) percentage = 0;
+        if (percentage > 100) percentage = 100;
+
+        // Show result box
+        resultBox.style.display = 'block';
+
+        // Animate progress bar width
+        percentFill.style.width = '0%';
+        setTimeout(() => {
+            percentFill.style.width = percentage + '%';
+        }, 100);
+
+        // Show percentage with animation (count up)
+        let displayed = 0;
+        const interval = setInterval(() => {
+            if (displayed >= percentage) {
+                clearInterval(interval);
+            } else {
+                displayed++;
+                percentageEl.innerText = displayed + '%';
+            }
+        }, 15);
+
+        // Message based on percentage
+        let message = '';
+        if (percentage >= 95) {
+            message = "ও মা! তোমাদের প্রেম চাঁদের মত ঝকঝকে! 💖🌙";
+        } else if (percentage >= 90) {
+            message = "দুর্দান্ত! তোমাদের ভালোবাসা ফুলের মত ফুটে উঠেছে! 🌹❤️";
+        } else if (percentage >= 85) {
+            message = "দেখছিস? ভালোবাসা ঠিকই আছে, আরও একটু যত্ন নিলে রাজা-রানির মত হবা! 👑💕";
+        } else if (percentage >= 80) {
+            message = "দেখতে দেখতে প্রেমটা জমে উঠছে, একটু ধৈর্য ধর! 😊🌟";
+        } else if (percentage >= 60) {
+            message = "ভালোবাসা আছে, কিন্তু একটু মিষ্টি কথা আর ভালোলাগার দরকার! 🍬💌";
+        } else if (percentage >= 40) {
+            message = "মাঝারি প্রেম, একটু চেষ্টা করো, আবার লাভে বসবে! 😅💘";
+        } else {
+            message = "ওহো! প্রেমটা একটু ঝঞ্ঝাটে, তবুও আশা রাখো! 🌧️❤️‍🔥";
+        }
+
+        messageEl.innerText = message;
+
+        // Generate floating hearts!
+        const heartCount = 15;
+        for (let i = 0; i < heartCount; i++) {
+            setTimeout(createFloatingHeart, i * 150);
+        }
+    });
+</script>
+</body>
+</html>
